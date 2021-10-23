@@ -1,0 +1,10 @@
+Debug
+Release
+.settings
+.cproject
+.project
+*.a
+*.o
+*.exe
+*.png
+.vscode/launch.json
