@@ -58,7 +58,6 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     vector<double> Harmony_value;             //ハーモニーメモリ内の評価値
     Harmony_value.reserve(Harmony_size);
 
-    int r;                                          //ランダムで選ばれるハーモニーの番号
     int worst_memory = 0;                           //最悪ハーモニーの番号
     double worst_value = -1000;                     //最悪ハーモニーの評価値
     int best_memory = 0;                            //最良ハーモニーの番号
@@ -98,7 +97,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
         worst_memory = 0;
         
         //ランダム選択したハーモニーメモリの番号
-        r = rand_0_100000(mt) % Harmony_size;
+        unsigned int r = rand_0_100000(mt) % Harmony_size;
 
         //新しいハーモニーの生成
         if (rand_0_1(mt) < R_a)
