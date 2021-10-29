@@ -70,14 +70,8 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     uniform_int_distribution<> rand_0_100000(0, 100000);        // [0, 100000] 範囲の一様乱数
     uniform_real_distribution<> rand_around(-1, 1);           // [-1, 1] 範囲の一様乱数
 
-
-    //ループ用
-    unsigned int i;
-    unsigned int j;
-    unsigned int t;
-
     //ハーモニーメモリの初期値設定
-    for (i = 0; i < Harmony_size; i++)
+    for (unsigned int i = 0; i < Harmony_size; i++)
     {
         //ハーモニーメモリの初期値を設定する
         Harmony_memory.emplace_back(fparam.init_stable_coef(0.5, 3.0));
@@ -88,7 +82,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     }
 
     //ハーモニーメモリ内の評価値を比較して最良ハーモニーを決定する
-    for (i = 0; i < Harmony_size; i++)
+    for (unsigned int i = 0; i < Harmony_size; i++)
     {
         if (Harmony_value.at(i) < best_value)
         {
@@ -98,7 +92,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     }
     
    //ハーモニーメモリを用いた探索
-    for (t = 0; t < Time_Max; t++)
+    for (unsigned int t = 0; t < Time_Max; t++)
     {
         worst_value = -1000;
         worst_memory = 0;
@@ -109,7 +103,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
         //新しいハーモニーの生成
         if (rand_0_1(mt) < R_a)
         {
-            for (j = 0; j < Dimension; j++)
+            for (unsigned int j = 0; j < Dimension; j++)
             {
                 if (rand_0_1(mt) < R_p)
                 {
@@ -133,7 +127,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
 	    objective_function_value = fparam.evaluate(Harmony_new);
 
         //ハーモニーメモリ内の評価値を比較して最悪ハーモニーを決定する
-        for (i = 0; i < Harmony_size; i++)
+        for (unsigned int i = 0; i < Harmony_size; i++)
         {
             if (Harmony_value.at(i) > worst_value)
             {
