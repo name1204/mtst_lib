@@ -21,7 +21,7 @@ struct Harmony_Search_Strategy
 {
     public:
     Harmony_Search_Strategy(FilterParam input)
-    :fparam(input),Time_Max(9900),Harmony_size(1000),Bandwidth(0.1),
+    :fparam(input),Time_Max(9900),Harmony_size(100000),Bandwidth(0.1),
      R_a(0.6),R_p(0.4)
     {}
 
@@ -65,8 +65,8 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
 
     thread_local random_device rnd;     // 非決定的な乱数生成器を生成
     thread_local mt19937 mt(rnd());     //  メルセンヌ・ツイスタの32ビット版、引数は初期シード値
-    uniform_real_distribution<> rand_0_1(0, 1);            // [0, 99] 範囲の一様乱数
-    uniform_int_distribution<> rand_0_100000(0, 100000);        // [0, 100000] 範囲の一様乱数
+    uniform_real_distribution<> rand_0_1(0, 1);            // [0, 1] 範囲の一様乱数
+    uniform_int_distribution<> rand_0_Harmony_size(0, Harmony_size - 1);        // [0, Harmony_size - 1] 範囲の一様乱数
     uniform_real_distribution<> rand_around(-1, 1);           // [-1, 1] 範囲の一様乱数
 
     //ハーモニーメモリの初期値設定
@@ -97,7 +97,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
         worst_memory = 0;
         
         //ランダム選択したハーモニーメモリの番号
-        unsigned int r = rand_0_100000(mt) % Harmony_size;
+        unsigned int r = rand_0_Harmony_size(mt);
 
         //新しいハーモニーの生成
         if (rand_0_1(mt) < R_a)
