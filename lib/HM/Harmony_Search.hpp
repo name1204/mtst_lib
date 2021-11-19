@@ -56,7 +56,7 @@ struct Harmony
     { return Harmony; }
 };
 
-struct Harmony_Search_Strategy
+struct HarmonySearchStrategy
 {
     public:
     Harmony_Search_Strategy(FilterParam input)
