@@ -21,9 +21,9 @@ struct Harmony_Search_Parameter
     protected:
 
     //ハーモニーサーチのパラメータ
-    int Time_Max;   //更新回数
-    int Harmony_Size; //ハーモニーメモリのサイズ
-    double Bandwidth; //バンド幅
+    size_t max_iter;   //更新回数
+    size_t harmony_size; //ハーモニーメモリのサイズ
+    double band_width; //バンド幅
     double R_a;       //選択比率(大きければ大きい程、ハーモニーメモリ内が使われる)
     double R_p;       //値調整比率(大きければ大きい程、値を調整する確率が上がる)
 
