@@ -49,7 +49,7 @@ struct Harmony_Search_Parameter
 struct Harmony
 {
     protected:
-    vector<double> Harmony;
+    vector<double> harmony;
 
     public:
     vector<double> get_Harmony() const
