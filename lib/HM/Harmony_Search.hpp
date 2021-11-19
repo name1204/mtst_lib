@@ -24,22 +24,22 @@ struct HarmonySearchParameter
     size_t max_iter;   //更新回数
     size_t harmony_size; //ハーモニーメモリのサイズ
     double band_width; //バンド幅
-    double R_a;       //選択比率(大きければ大きい程、ハーモニーメモリ内が使われる)
-    double R_p;       //値調整比率(大きければ大きい程、値を調整する確率が上がる)
+    double Ra_selecttion_ratio;       //選択比率(大きければ大きい程、ハーモニーメモリ内が使われる)
+    double Rp_adjustment_ratio;       //値調整比率(大きければ大きい程、値を調整する確率が上がる)
 
     public:
 
-    Harmony_Search_Parameter()
-    :Time_Max(9999990),Harmony_Size(10),Bandwidth(0.1),
+    HarmonySearchParameter()
+    :max_iter(9999990),harmony_size(10),band_width(0.1),
      R_a(0.9),R_p(0.1)
     {}
     
-    int get_Time_Max() const
-    { return Time_Max; }
-    int get_Harmony_Size() const
-    { return Harmony_Size; }
-    double get_Bandwidth() const
-    { return Bandwidth; }
+    int get_max_iter() const
+    { return max_iter; }
+    int get_harmony_size() const
+    { return harmony_size; }
+    double get_band_width() const
+    { return band_width; }
     double get_R_a() const
     { return R_a; }
     double get_R_p() const
@@ -53,13 +53,13 @@ struct Harmony
 
     public:
     vector<double> get_Harmony() const
-    { return Harmony; }
+    { return harmony; }
 };
 
 struct HarmonySearchStrategy
 {
     public:
-    Harmony_Search_Strategy(FilterParam input)
+    HarmonySearchStrategy(FilterParam input)
     :fparam(input)
     {}
 
@@ -72,12 +72,13 @@ struct HarmonySearchStrategy
     /   選択比率(大きければ大きい程、ハーモニーメモリ内が使われる)
     /   値調整比率(大きければ大きい程、値を調整する確率が上がる)
     */
-    Harmony_Search_Parameter Hparam;
+    HarmonySearchParameter Hparam;
+    FilterParam fparam;
 
     Result optimize();
 };
 
-Result Harmony_Search_Strategy::optimize()//void型でも可
+Result HarmonySearchStrategy::optimize()//void型でも可
 {
     using namespace std;
     clock_t start = clock();
@@ -91,13 +92,13 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     const int Dimension = fparam.opt_order();      //n次元
 
     vector<Harmony> Harmony_memory; //ハーモニーメモリ
-    Harmony_memory.reserve(Hparam.get_Harmony_Size());
+    Harmony_memory.reserve(Hparam.get_harmony_size());
 
     Harmony Harmony_new;                  //生成する新しいハーモニー
     Harmony_new.get_Harmony().resize(Dimension);
 
     vector<double> Harmony_value;             //ハーモニーメモリ内の評価値
-    Harmony_value.reserve(Hparam.get_Harmony_Size());
+    Harmony_value.reserve(Hparam.get_harmony_size());
 
     int worst_memory = 0;                           //最悪ハーモニーの番号
     double worst_value = -1000;                     //最悪ハーモニーの評価値
@@ -107,11 +108,11 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     thread_local random_device rnd;     // 非決定的な乱数生成器を生成
     thread_local mt19937 mt(rnd());     //  メルセンヌ・ツイスタの32ビット版、引数は初期シード値
     uniform_real_distribution<> rand_0_1(0, 1);            // [0, 1] 範囲の一様乱数
-    uniform_int_distribution<> rand_0_Harmony_size(0, Hparam.get_Harmony_Size() - 1);        // [0, Harmony_size - 1] 範囲の一様乱数
+    uniform_int_distribution<> rand_0_Harmony_size(0, Hparam.get_harmony_size() - 1);        // [0, Harmony_size - 1] 範囲の一様乱数
     uniform_real_distribution<> rand_around(-1, 1);           // [-1, 1] 範囲の一様乱数
 
     //ハーモニーメモリの初期値設定
-    for (unsigned int i = 0; i < Hparam.get_Harmony_Size(); i++)
+    for (unsigned int i = 0; i < Hparam.get_harmony_size(); i++)
     {
         //ハーモニーメモリの初期値を設定する
         Harmony_memory.emplace_back(fparam.init_stable_coef(0.5, 3.0));
@@ -122,7 +123,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     }
 
     //ハーモニーメモリ内の評価値を比較して最良ハーモニーを決定する
-    for (unsigned int i = 0; i < Hparam.get_Harmony_Size(); i++)
+    for (unsigned int i = 0; i < Hparam.get_harmony_size(); i++)
     {
         if (Harmony_value.at(i) < best_value)
         {
@@ -132,7 +133,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     }
     
    //ハーモニーメモリを用いた探索
-    for (unsigned int t = 0; t < Hparam.get_Time_Max(); t++)
+    for (unsigned int t = 0; t < Hparam.get_max_iter(); t++)
     {
         worst_value = -1000;
         worst_memory = 0;
@@ -148,7 +149,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
                 if (rand_0_1(mt) < Hparam.get_R_p())
                 {
                     //値を調整して代入する
-                    Harmony_new.get_Harmony().at(j) = Harmony_memory.at(r).get_Harmony().at(j) + (Hparam.get_Bandwidth() * rand_around(mt));
+                    Harmony_new.get_Harmony().at(j) = Harmony_memory.at(r).get_Harmony().at(j) + (Hparam.get_band_width() * rand_around(mt));
                 }
                 else
                 {
@@ -167,7 +168,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
 	    objective_function_value = fparam.evaluate(Harmony_new.get_Harmony());
 
         //ハーモニーメモリ内の評価値を比較して最悪ハーモニーを決定する
-        for (unsigned int i = 0; i < Hparam.get_Harmony_Size(); i++)
+        for (unsigned int i = 0; i < Hparam.get_harmony_size(); i++)
         {
             if (Harmony_value.at(i) > worst_value)
             {
@@ -197,7 +198,7 @@ Result Harmony_Search_Strategy::optimize()//void型でも可
     }
     clock_t end = clock();
     printf("%f\n",best_value);
-    result.set_value(best_value).set_update_value(update_curve).set_evals(Hparam.get_Time_Max() + Hparam.get_Harmony_Size()).set_time(end - start).set_iter(Hparam.get_Time_Max());
+    result.set_value(best_value).set_update_value(update_curve).set_evals(Hparam.get_max_iter() + Hparam.get_harmony_size()).set_time(end - start).set_iter(Hparam.get_max_iter());
 
     return(result);
 }
