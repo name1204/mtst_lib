@@ -75,7 +75,6 @@ struct Harmony_Search_Strategy
     Harmony_Search_Parameter Hparam;
 
     Result optimize();
-    FilterParam fparam;
 };
 
 Result Harmony_Search_Strategy::optimize()//void型でも可
