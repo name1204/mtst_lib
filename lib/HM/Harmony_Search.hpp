@@ -16,7 +16,7 @@
 #include <vector>
 #include <time.h>
 #include <random>
-struct Harmony_Search_Parameter
+struct HarmonySearchParameter
 {
     protected:
 
