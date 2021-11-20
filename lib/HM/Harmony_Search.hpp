@@ -31,7 +31,7 @@ struct HarmonySearchParameter
 
     HarmonySearchParameter()
     :max_iter(9999990),harmony_size(10),band_width(0.1),
-     R_a(0.9),R_p(0.1)
+     Ra_selecttion_ratio(0.9),Rp_adjustment_ratio(0.1)
     {}
     
     int get_max_iter() const
@@ -40,10 +40,10 @@ struct HarmonySearchParameter
     { return harmony_size; }
     double get_band_width() const
     { return band_width; }
-    double get_R_a() const
-    { return R_a; }
-    double get_R_p() const
-    { return R_p; }
+    double get_Ra_selecttion_ratio() const
+    { return Ra_selecttion_ratio; }
+    double get_Rp_adjustment_ratio() const
+    { return Rp_adjustment_ratio; }
 };
 
 struct Harmony
@@ -142,11 +142,11 @@ Result HarmonySearchStrategy::optimize()//void型でも可
         unsigned int r = rand_0_Harmony_size(mt);
 
         //新しいハーモニーの生成
-        if (rand_0_1(mt) < Hparam.get_R_a())
+        if (rand_0_1(mt) < Hparam.get_Ra_selecttion_ratio())
         {
             for (unsigned int j = 0; j < Dimension; j++)
             {
-                if (rand_0_1(mt) < Hparam.get_R_p())
+                if (rand_0_1(mt) < Hparam.get_Rp_adjustment_ratio())
                 {
                     //値を調整して代入する
                     Harmony_new.get_Harmony().at(j) = Harmony_memory.at(r).get_Harmony().at(j) + (Hparam.get_band_width() * rand_around(mt));
