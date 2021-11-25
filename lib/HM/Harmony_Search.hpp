@@ -4,7 +4,6 @@
 
 #define _USE_MATH_DEFINES
 
-#include "./filter_param.hpp"
 #include "./opt_helper.hpp"
 
 #include <stdlib.h>
@@ -59,8 +58,8 @@ struct Harmony
 struct HarmonySearchStrategy
 {
     public:
-    HarmonySearchStrategy(FilterParam input)
-    :fparam(input)
+    HarmonySearchStrategy(const int input)
+    :Dimension(input)
     {}
 
     /*  
@@ -73,7 +72,7 @@ struct HarmonySearchStrategy
     /   値調整比率(大きければ大きい程、値を調整する確率が上がる)
     */
     HarmonySearchParameter Hparam;
-    FilterParam fparam;
+    const int Dimension;
 
     Result optimize();
 };
@@ -89,7 +88,7 @@ Result HarmonySearchStrategy::optimize()//void型でも可
     Result result;                      
     vector<double>  update_curve;
 
-    const int Dimension = fparam.opt_order();      //n次元
+     //n次元
 
     vector<Harmony> Harmony_memory; //ハーモニーメモリ
     Harmony_memory.reserve(Hparam.get_harmony_size());
@@ -115,10 +114,10 @@ Result HarmonySearchStrategy::optimize()//void型でも可
     for (unsigned int i = 0; i < Hparam.get_harmony_size(); i++)
     {
         //ハーモニーメモリの初期値を設定する
-        Harmony_memory.emplace_back(fparam.init_stable_coef(0.5, 3.0));
+        Harmony_memory.emplace_back(rand_around);
 
         //目的関数値
-    	objective_function_value = fparam.evaluate(Harmony_memory.at(i).get_Harmony());
+    	objective_function_value = 0; //計算させたい式を代入？
         Harmony_value.emplace_back(objective_function_value);
     }
 
@@ -160,12 +159,15 @@ Result HarmonySearchStrategy::optimize()//void型でも可
         }
         else
         {
-            //ランダムな値を代入する
-            Harmony_new.get_Harmony() = fparam.init_stable_coef(0.5, 3.0);
+            for (unsigned int j = 0; j < Dimension; j++)
+                {
+                    //ランダムな値を代入する
+                    Harmony_new.get_Harmony().emplace_back(rand_around);
+                }
         }
 
          //目標関数値
-	    objective_function_value = fparam.evaluate(Harmony_new.get_Harmony());
+	    objective_function_value = 0; //計算させたい式を代入？
 
         //ハーモニーメモリ内の評価値を比較して最悪ハーモニーを決定する
         for (unsigned int i = 0; i < Hparam.get_harmony_size(); i++)
