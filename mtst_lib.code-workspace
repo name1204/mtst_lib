@@ -1,0 +1,35 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"C_Cpp.default.includePath": [
+			"./include"
+		],
+		"cmake.generator": "MinGW Makefiles",
+		"cmake.configureArgs": [
+			"-DDEVELOP_EXECUTABLE_mtst_lib=ON"
+		],
+		"editor.defaultFormatter": "xaver.clang-format",
+		"C_Cpp.clang_format_fallbackStyle": "WebKit",
+		"clang-format.fallbackStyle": "WebKit",
+		"editor.formatOnPaste": true,
+		"editor.formatOnSave": true,
+		"extensions.ignoreRecommendations": false
+	},
+	"extensions": {
+		"recommendations": [
+			"xaver.clang-format",
+			"ms-vscode.cpptools",
+			"ms-vscode.cpptools-themes",
+			"twxs.cmake",
+			"ms-vscode.cmake-tools",
+			"cschlosser.doxdocgen",
+			"jeff-hykin.better-cpp-syntax",
+			"vadimcn.vscode-lldb",
+			"ms-ceintl.vscode-language-pack-ja"
+		]
+	}
+}
