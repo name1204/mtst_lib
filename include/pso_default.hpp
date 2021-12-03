@@ -10,16 +10,16 @@
 
 namespace pso_default
 {
-	struct Particle
-	{
-	public:
-		Particle();
-		virtual ~Particle();
-	};
+    struct Particle
+    {
+    public:
+
+        Particle();
+        virtual ~Particle();
+    };
 
 
-}
-
+}    // namespace pso_default
 
 
 #endif /* PSO_PSO_DEFAULT_HPP_ */
