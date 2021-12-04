@@ -17,7 +17,7 @@
 
 namespace harmony_search
 {
-    namespace harmony_default
+    namespace hs_default
     {
         struct Harmony
         {
@@ -28,7 +28,6 @@ namespace harmony_search
 
         public:
 
-            Harmony(): value_( 0 ) {}
             Harmony( double value, std::vector< double > vals )
                 : value_( value ), harmony_( vals )
             {}
@@ -57,7 +56,7 @@ namespace harmony_search
         {
         protected:
 
-            std::size_t max_iter_;        //更新回数
+            std::size_t m_evals_;         //更新回数
             std::size_t harmony_size_;    //ハーモニーメモリのサイズ
             double band_width_;           //バンド幅
             double selecttion_ratio_;     // = Ra = 選択比率(大きければ大きい程、ハーモニーメモリ内が使われる)
@@ -66,52 +65,52 @@ namespace harmony_search
         public:
 
             HarmonySearchParameter()
-                : max_iter_( 9999990 ), harmony_size_( 10 ), band_width_( 0.1 ),
+                : m_evals_( 9999990 ), harmony_size_( 10 ), band_width_( 0.1 ),
                   selecttion_ratio_( 0.9 ), adjustment_ratio_( 0.1 )
             {}
 
-            std::size_t max_iter() const
+            std::size_t max_evals() const
             {
-                return max_iter_;
+                return this->m_evals_;
             }
             size_t harmony_size() const
             {
-                return harmony_size_;
+                return this->harmony_size_;
             }
             double band_width() const
             {
-                return band_width_;
+                return this->band_width_;
             }
             double selecttion_ratio() const
             {
-                return selecttion_ratio_;
+                return this->selecttion_ratio_;
             }
             double adjustment_ratio() const
             {
-                return adjustment_ratio_;
+                return this->adjustment_ratio_;
             }
 
-            HarmonySearchParameter& max_iter( std::size_t input )
+            HarmonySearchParameter& set_max_evals( std::size_t input )
             {
-                max_iter_ = input;
+                m_evals_ = input;
                 return *this;
             }
-            HarmonySearchParameter& harmony_size( std::size_t input )
+            HarmonySearchParameter& set_harmony_size( std::size_t input )
             {
                 harmony_size_ = input;
                 return *this;
             }
-            HarmonySearchParameter& band_width( double input )
+            HarmonySearchParameter& set_band_width( double input )
             {
                 band_width_ = input;
                 return *this;
             }
-            HarmonySearchParameter& selecttion_ratio( double input )
+            HarmonySearchParameter& set_selecttion_ratio( double input )
             {
                 selecttion_ratio_ = input;
                 return *this;
             }
-            HarmonySearchParameter& adjustment_ratio( double input )
+            HarmonySearchParameter& set_adjustment_ratio( double input )
             {
                 adjustment_ratio_ = input;
                 return *this;
@@ -123,50 +122,74 @@ namespace harmony_search
         protected:
 
             HarmonySearchParameter param_;
-            std::vector< Harmony > harmonies_;
-            std::size_t worst_harmony_;    //最悪ハーモニーの番号
-            std::size_t best_harmony_;     //最良ハーモニーの番号
-
             std::size_t dim_;
             std::function< double( std::vector< double >& ) > obj_func_;
-            std::function< Harmony( void ) > init_generate_func_;
-            std::function< Harmony( void ) > rng_generate_func_;
+            std::function< std::vector< double >( void ) > init_generate_func_;
+            std::function< std::vector< double >( void ) > rng_generate_func_;
+
+            // 内部パラメータ
+            std::vector< Harmony > harmonies_;
 
         public:
 
-            HarmonySearchStrategy()
-            {}
+            HarmonySearchStrategy( HarmonySearchParameter, std::size_t, std::function< double( std::vector< double >& ) > );
+            HarmonySearchStrategy(
+                HarmonySearchParameter,
+                std::size_t,
+                std::function< double( std::vector< double >& ) >,
+                std::function< std::vector< double >( void ) > );
+            HarmonySearchStrategy(
+                HarmonySearchParameter,
+                std::size_t,
+                std::function< double( std::vector< double >& ) >,
+                std::function< std::vector< double >( void ) >,
+                std::function< std::vector< double >( void ) > );
+            virtual ~HarmonySearchStrategy() {}
 
-            void harmony_initialize();
-            Harmony generate_init_harmony() const
+            const std::vector< Harmony >& harmonies_ref()
             {
-                return this->init_generate_func_();
+                return std::ref( this->harmonies_ );
             }
-            Harmony generate_rng_harmony() const
-            {
-                return this->rng_generate_func_();
-            }
-            Harmony generate_tuning_harmony( const std::size_t ) const;
-            Harmony generate_harmony( const std::size_t ) const;
-            std::size_t best_harmony() const;
-            std::size_t worst_harmony() const;
-            void trade_harmony( Harmony );
 
-            std::size_t select_tune_harmony() const;
+            const HarmonySearchParameter& param_ref()
+            {
+                return std::ref( this->param_ );
+            }
+
+            virtual Harmony generate_init_harmony() const
+            {
+                std::vector< double > new_harmony_vals = this->init_generate_func_();
+                return Harmony( this->obj_func_( new_harmony_vals ), std::move( new_harmony_vals ) );
+            }
+            virtual Harmony generate_rng_harmony() const
+            {
+                std::vector< double > new_harmony_vals = this->rng_generate_func_();
+                return Harmony( this->obj_func_( new_harmony_vals ), std::move( new_harmony_vals ) );
+            }
+            virtual Harmony generate_tuning_harmony( const std::size_t ) const;
+            virtual Harmony generate_harmony( const std::size_t ) const;
+            virtual std::size_t best_harmony() const;
+            virtual std::size_t worst_harmony() const;
+            virtual void trade_harmony( Harmony );
+
+            virtual std::size_t select_tune_harmony() const;
+
+            static std::vector< double > gen_rng_vals( std::size_t );
+            static std::vector< double > gen_rng_vals( std::size_t, double );
         };
 
         struct HarmonyResult
         {
         protected:
 
-            double value_;    //最良評価値
-            std::vector< double > update_value_;
-            std::vector< double > variable_;         //最良評価値の時の変数
-            std::vector< double > init_variable_;    // 最適化開始時の最良評価値の変数
-            std::vector< std::vector< double > > update_variable_;
-            double evals_;         //評価回数
-            std::clock_t time_;    // 1試行あたりの最適化の実行時間
-            size_t iter_;          //更新回数
+            double value_;                                            // 最良評価値
+            std::vector< double > update_value_;                      // 更新曲線
+            std::vector< double > variable_;                          // 最良評価値の時の変数
+            std::vector< double > init_variable_;                     // 最適化開始時の最良評価値の変数
+            std::vector< std::vector< double > > update_variable_;    // 変数の更新履歴
+            std::size_t evals_;                                       // 評価回数
+            std::clock_t time_;                                       // 1試行あたりの最適化の実行時間
+            std::size_t iter_;                                        // 更新回数
 
         public:
 
@@ -202,7 +225,7 @@ namespace harmony_search
                 return *this;
             }
 
-            HarmonyResult& set_evals( double input )
+            HarmonyResult& set_evals( std::size_t input )
             {
                 evals_ = input;
                 return *this;
@@ -246,7 +269,7 @@ namespace harmony_search
             {
                 return update_variable_;
             }
-            double evals() const
+            std::size_t evals() const
             {
                 return evals_;
             }
@@ -262,10 +285,23 @@ namespace harmony_search
 
         struct HarmonyOptimizer
         {
-            HarmonyOptimizer( HarmonySearchParameter );
-            HarmonyResult optimize( std::function< double( std::vector< double >& ) > );
+        protected:
+
+            HarmonySearchParameter param_;
+
+        public:
+
+            HarmonyOptimizer() {}
+            HarmonyOptimizer( HarmonySearchParameter param ): param_( param ) {}
+            virtual ~HarmonyOptimizer() {}
+
+            virtual HarmonyResult optimize( std::size_t, std::function< double( std::vector< double >& ) > );
+
+            virtual void initialize() {}
+            virtual void pre_act() {}
+            virtual void post_act() {}
         };
-    }    // namespace harmony_default
+    }    // namespace hs_default
 }    // namespace harmony_search
 
 
