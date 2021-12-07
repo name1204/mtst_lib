@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
 # if you want to add sub directory.
-add_subdirectory(common)
+# add_subdirectory(sample_name)
 
 
 # if you want to add test and test executable.
-# add_executable(sample-test-name source)
-# target_link_libraries(sample-test-name test_target_library)
+add_executable(common_result_test common_result_test.cpp)
+	target_link_libraries(common_result_test common)
 
 # if you want to add config for test.
 # add_test(
