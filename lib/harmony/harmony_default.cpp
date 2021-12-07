@@ -50,6 +50,18 @@ namespace harmony_search
                 { return HarmonySearchStrategy::gen_rng_vals( dim ); } )
         {}
 
+        HarmonySearchStrategy::HarmonySearchStrategy(
+            HarmonySearchParameter param,
+            std::size_t dim,
+            std::function< double( std::vector< double >& ) > obj_func,
+            std::function< std::vector< double >( void ) > init_func,
+            std::function< std::vector< double >( void ) > rng_func,
+            std::vector< Harmony > harmonies )
+            : param_( param ), dim_( dim ), obj_func_( obj_func ),
+              init_generate_func_( init_func ), rng_generate_func_( rng_func ),
+              harmonies_( harmonies )
+        {}
+
         std::size_t HarmonySearchStrategy::best_harmony() const
         {
             auto minimam = std::min_element( this->harmonies_.begin(), this->harmonies_.end(), [this]( const Harmony& h1, const Harmony& h2 )
@@ -100,10 +112,10 @@ namespace harmony_search
                 }
             }
 
-            return Harmony( this->obj_func_( new_harmony_vals ), std::move( new_harmony_vals ) );
+            return Harmony( this->obj_func_( new_harmony_vals ), new_harmony_vals );
         }
 
-        Harmony HarmonySearchStrategy::generate_harmony( const std::size_t ) const
+        Harmony HarmonySearchStrategy::generate_harmony() const
         {
             using std::uniform_real_distribution;
 
@@ -137,14 +149,7 @@ namespace harmony_search
 
         std::vector< double > HarmonySearchStrategy::gen_rng_vals( std::size_t dim )
         {
-            thread_local std::random_device rnd;                       // 非決定的な乱数生成器を生成
-            thread_local std::mt19937 mt( rnd() );                     // メルセンヌ・ツイスタの32ビット版、引数は初期シード値
-            std::uniform_real_distribution<> rng_real( -3.0, 3.0 );    // 一様乱数
-
-            std::vector< double > vals( dim );
-            std::generate( vals.begin(), vals.end(), [&]() mutable
-                           { return rng_real( mt ); } );
-            return vals;
+            return HarmonySearchStrategy::gen_rng_vals( dim, 3.0 );
         }
 
         std::vector< double > HarmonySearchStrategy::gen_rng_vals( std::size_t dim, double range )
@@ -180,11 +185,8 @@ namespace harmony_search
                 // 更新前アクション
                 this->pre_act();
 
-                // 更新するハーモニーの選択
-                std::size_t index = strat.select_tune_harmony();
-
                 // 新しいハーモニーの生成
-                auto new_harmony = strat.generate_harmony( index );
+                auto new_harmony = strat.generate_harmony();
 
                 //ハーモニーメモリ内の評価値と比較して最悪ハーモニーより良ければハーモニーを入れ替える
                 strat.trade_harmony( new_harmony );
@@ -207,7 +209,8 @@ namespace harmony_search
                 .set_value( strat.harmonies_ref().at( best_index ).value() )
                 .set_variable( strat.harmonies_ref().at( best_index ).harmony() )
                 .set_time( end - start )
-                .set_update_value( update_curve );
+                .set_update_value( update_curve )
+                .set_evals( strat.param_ref().max_evals() + strat.param_ref().harmony_size() );
 
             return result;
         }

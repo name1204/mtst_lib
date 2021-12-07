@@ -144,6 +144,14 @@ namespace harmony_search
                 std::function< double( std::vector< double >& ) >,
                 std::function< std::vector< double >( void ) >,
                 std::function< std::vector< double >( void ) > );
+            // for test
+            HarmonySearchStrategy(
+                HarmonySearchParameter,
+                std::size_t,
+                std::function< double( std::vector< double >& ) >,
+                std::function< std::vector< double >( void ) >,
+                std::function< std::vector< double >( void ) >,
+                std::vector< Harmony > );
             virtual ~HarmonySearchStrategy() {}
 
             const std::vector< Harmony >& harmonies_ref()
@@ -159,15 +167,15 @@ namespace harmony_search
             virtual Harmony generate_init_harmony() const
             {
                 std::vector< double > new_harmony_vals = this->init_generate_func_();
-                return Harmony( this->obj_func_( new_harmony_vals ), std::move( new_harmony_vals ) );
+                return Harmony( this->obj_func_( new_harmony_vals ), new_harmony_vals );
             }
             virtual Harmony generate_rng_harmony() const
             {
                 std::vector< double > new_harmony_vals = this->rng_generate_func_();
-                return Harmony( this->obj_func_( new_harmony_vals ), std::move( new_harmony_vals ) );
+                return Harmony( this->obj_func_( new_harmony_vals ), new_harmony_vals );
             }
             virtual Harmony generate_tuning_harmony( const std::size_t ) const;
-            virtual Harmony generate_harmony( const std::size_t ) const;
+            virtual Harmony generate_harmony() const;
             virtual std::size_t best_harmony() const;
             virtual std::size_t worst_harmony() const;
             virtual void trade_harmony( Harmony );
