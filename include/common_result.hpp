@@ -10,8 +10,10 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <string>
 #include <vector>
+
 
 namespace mtst_common
 {
@@ -40,7 +42,7 @@ namespace mtst_common
             fprintf( csv, "No," );
             for ( std::size_t i = 0, len = results.at( 0 ).variables().size(); i < len; ++i )
             {
-                fprintf( csv, "Variable[%d],", i );
+                fprintf( csv, "Variable[%lu],", static_cast< long unsigned int >( i ) );
             }
             fprintf( csv, "\n" );
 
@@ -48,14 +50,14 @@ namespace mtst_common
             for ( std::size_t i = 0, len = results.size(); i < len; ++i )
             {
                 // No
-                fprintf( csv, "%d,", i + 1 );
+                fprintf( csv, "%lu,", static_cast< long unsigned int >( i + 1 ) );
 
                 // Variables
-                for ( std::size_t j = 0, dim = results.at( i ).get_variable().size() - 1; j < dim; j++ )
+                for ( std::size_t j = 0, dim = results.at( i ).variables().size() - 1; j < dim; j++ )
                 {
-                    fprintf( csv, "%.15f,", results.at( i ).get_variable().at( j ) );
+                    fprintf( csv, "%.15f,", results.at( i ).variables().at( j ) );
                 }
-                fprintf( csv, "%.15f\n", results.at( i ).get_variable().back() );
+                fprintf( csv, "%.15f\n", results.at( i ).variables().back() );
             }
 
             fclose( csv );
@@ -106,8 +108,8 @@ namespace mtst_common
 
             double value_;    //最良評価値
             std::vector< double > update_value_;
-            std::vector< double > variable_;         //最良評価値の時の変数
-            std::vector< double > init_variable_;    // 最適化開始時の最良評価値の変数
+            std::vector< double > variable_;                        //最良評価値の時の変数
+            std::vector< std::vector< double > > init_variable_;    // 最適化開始時の最良評価値の変数
             std::vector< std::vector< double > > update_variable_;
             std::size_t evals_;    //評価回数
             std::clock_t time_;    // 1試行あたりの最適化の実行時間
@@ -136,7 +138,7 @@ namespace mtst_common
                 return *this;
             }
 
-            TraitResult& set_init_variable( std::vector< double > input )
+            TraitResult& set_init_variable( std::vector< std::vector< double > > input )
             {
                 init_variable_ = input;
                 return *this;
@@ -184,7 +186,7 @@ namespace mtst_common
             {
                 return variable_;
             }
-            std::vector< double > init_variable() const
+            std::vector< std::vector< double > > init_variable() const
             {
                 return init_variable_;
             }
@@ -211,8 +213,8 @@ namespace mtst_common
             void tprint_variable( const std::string& ) const;
             void tprint_init_variable( const std::string& ) const;
 
-            virtual std::string csv_header() = 0;
-            virtual std::string csv_data() = 0;
+            virtual std::string csv_header() const = 0;
+            virtual std::string csv_data() const = 0;
         };
     }    // namespace result
 }    // namespace mtst_common

@@ -44,7 +44,7 @@ namespace mtst_common
         void TraitResult::gprint_update_curve( const std::string& file_name, bool logscale ) const
         {
             // xrangeの右端を切り上げる
-            unsigned int digit = static_cast< unsigned int >( std::log10( this->update_value_.size() ) );
+            unsigned int digit = static_cast< unsigned int >( std::floor( std::log10( this->update_value_.size() ) ) );
             const double digit_pow = std::pow( 10.0, digit );
             unsigned int xrange = static_cast< unsigned int >( std::ceil( static_cast< double >( this->update_value_.size() ) / digit_pow ) * digit_pow );
 
@@ -92,7 +92,7 @@ namespace mtst_common
 
             // header 印字
             fprintf( csv, "No," );
-            for ( std::size_t i = 0, len = this->update_variable_.at( i ).size(); i < len; i++ )
+            for ( std::size_t i = 0, len = this->update_variable_.at( 0 ).size(); i < len; i++ )
             {
                 fprintf( csv, "Variable[%lu],", static_cast< long unsigned int >( i ) );
             }
@@ -125,12 +125,15 @@ namespace mtst_common
         {
             FILE* csv = fopen( file_name.c_str(), "w" );
 
+            // ヘッダー印字
+            fprintf( csv, "Variable[n],Value\n" );
+
             // 係数値印字
             for ( std::size_t i = 0, dim = this->variable_.size() - 1; i < dim; i++ )
             {
-                fprintf( csv, "Variable[%lu],%.15f", static_cast< long unsigned int >( i ), this->variable_.at( i ) );
+                fprintf( csv, "Variable[%lu],%.15f\n", static_cast< long unsigned int >( i ), this->variable_.at( i ) );
             }
-            fprintf( csv, "Variable[%lu],%.15f", static_cast< long unsigned int >( this->variable_.size() ), this->variable_.back() );
+            fprintf( csv, "Variable[%lu],%.15f\n", static_cast< long unsigned int >( this->variable_.size() ), this->variable_.back() );
 
             fclose( csv );
         }
@@ -146,12 +149,27 @@ namespace mtst_common
         {
             FILE* csv = fopen( file_name.c_str(), "w" );
 
-            // 係数値印字
-            for ( std::size_t i = 0, dim = this->init_variable_.size() - 1; i < dim; i++ )
+            // header 印字
+            fprintf( csv, "No," );
+            for ( std::size_t i = 0, len = this->init_variable_.at( 0 ).size(); i < len; i++ )
             {
-                fprintf( csv, "Variable[%lu],%.15f", static_cast< long unsigned int >( i ), this->init_variable_.at( i ) );
+                fprintf( csv, "Variable[%lu],", static_cast< long unsigned int >( i ) );
             }
-            fprintf( csv, "Variable[%lu],%.15f", static_cast< long unsigned int >( this->init_variable_.size() ), this->init_variable_.back() );
+            fprintf( csv, "\n" );
+
+            // 係数値印字
+            for ( std::size_t i = 0, len = this->init_variable_.size(); i < len; ++i )
+            {
+                // No
+                fprintf( csv, "%lu,", static_cast< long unsigned int >( i + 1 ) );
+
+                // variables
+                for ( std::size_t j = 0, dim = this->init_variable_.at( i ).size() - 1; j < dim; ++j )
+                {
+                    fprintf( csv, "%.15f,", this->init_variable_.at( i ).at( j ) );
+                }
+                fprintf( csv, "%.15f\n", this->init_variable_.at( i ).back() );
+            }
 
             fclose( csv );
         }
