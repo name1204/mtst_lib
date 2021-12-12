@@ -1,3 +1,4 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_library(pso pso_default.cpp)
+add_library(${PROJECT_NAME}-pso
+	pso_default.cpp)
