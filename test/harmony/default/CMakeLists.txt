@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 
 add_executable(harmony-default-test harmony_default_test.cpp)
-	target_link_libraries(harmony-default-test harmony)
+	target_link_libraries(harmony-default-test ${PROJECT_NAME})
 
 
 add_test(

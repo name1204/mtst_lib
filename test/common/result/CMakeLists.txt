@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # if you want to add test and test executable.
 add_executable(common-result-test common_result_test.cpp)
-	target_link_libraries(common-result-test ${PROJECT_NAME}-common)
+	target_link_libraries(common-result-test ${PROJECT_NAME})
 
 # if you want to add config for test.
 # add_test(

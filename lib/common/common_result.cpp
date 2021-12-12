@@ -5,7 +5,7 @@
  *      Author: matsu
  */
 
-#include "common_result.hpp"
+#include "common/common_result.hpp"
 
 namespace mtst_common
 {

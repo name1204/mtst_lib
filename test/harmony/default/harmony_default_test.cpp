@@ -1,4 +1,4 @@
-#include "harmony_default.hpp"
+#include "harmony/harmony_default.hpp"
 
 #include <cassert>
 #include <cstdio>

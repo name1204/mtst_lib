@@ -8,8 +8,7 @@
 #ifndef INCLUDE_COMMON_HPP_
 #define INCLUDE_COMMON_HPP_
 
-
-
-
+#include "common/common_optimizer.hpp"
+#include "common/common_result.hpp"
 
 #endif /* INCLUDE_COMMON_HPP_ */

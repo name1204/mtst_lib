@@ -5,7 +5,7 @@
  *      Author: matsu
  */
 
-#include "harmony_default.hpp"
+#include "harmony/harmony_default.hpp"
 
 namespace harmony_search
 {
@@ -199,8 +199,11 @@ namespace harmony_search
                 this->post_act();
             }
 
+            this->finalize();
+
             // 実行時間計測終了
             clock_t end = clock();
+
 
             HarmonyResult result;
 
